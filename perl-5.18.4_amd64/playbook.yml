@@ -1,0 +1,34 @@
+---
+- hosts: default
+  vars:
+    user: vagrant
+  strategy: linear
+  tasks:
+
+    - name: Update Environment
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install pre-reqs
+      become: yes
+      apt:
+        name:
+          - zip
+          - gzip
+          - build-essential
+        state: present
+        force: yes
+
+    - name: Install Perlbrew
+      block:
+        - shell: curl -L https://install.perlbrew.pl | bash
+          args: 
+            warn: no
+            creates: /home/vagrant/perl5/perlbrew/bin/perlbrew
+        - shell: echo '[ -s "$HOME/perl5/perlbrew/etc/bashrc" ] && . "$HOME/perl5/perlbrew/etc/bashrc"' >> ~/.bashrc
+
+    - name: Install Perl 5.18.4
+      command: /home/vagrant/perl5/perlbrew/bin/perlbrew install --verbose 5.18.4
+      args:
+        creates: /home/vagrant/perl5/perlbrew/perls/perl-5.18.4

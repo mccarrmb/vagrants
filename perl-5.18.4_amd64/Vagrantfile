@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGARANT_CONFIG_VERSION = '2'.freeze
+VM_NAME = 'perl-5-18-4'.freeze
+VM_GROUP = '/Vagrants'.freeze
+BRIDGE_ADAPTER = 'en1: Wi-Fi (AirPort)'.freeze
+
+
+Vagrant.configure(VAGARANT_CONFIG_VERSION) do |config|
+  # Vagrant settings
+  config.vm.box = 'ubuntu/trusty64'
+  config.vm.hostname = VM_NAME
+  config.vm.synced_folder '../data', '/vagrant_data'
+
+  # Networking
+  config.vm.network 'forwarded_port', guest: 80, host: 8080
+  config.vm.network 'public_network', bridge: BRIDGE_ADAPTER
+  
+  # VirtualBox configuration
+  config.vm.provider 'virtualbox' do |vb|
+    vb.name = VM_NAME
+    vb.gui = false
+    vb.memory = '256'
+    vb.cpus = 1
+    vb.customize ['modifyvm', :id, '--groups', VM_GROUP]
+    vb.customize ['modifyvm', :id, '--name', VM_NAME]
+  end
+
+  # Ansible provisioning
+  config.vm.provision 'ansible' do |ansible|
+    ansible.verbose = 'v'
+    ansible.playbook = 'playbook.yml'
+  end
+end
