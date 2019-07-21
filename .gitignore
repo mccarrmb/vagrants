@@ -1,5 +1,8 @@
 # Code Ignores
 
+# Vagrant stuff
+.vagrant/
+
 ## Java
 *.class
 *.log
@@ -9,9 +12,6 @@
 *.war
 *.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
 hs_err_pid*
 
 ## Node

@@ -2,17 +2,17 @@
 - hosts: default
   vars:
     user: vagrant
-    mysql_path: /usr/local/opt/mysql
+    mysql_path: /usr/local/mysql
+    mysql_arch: mysql-5.1.73-linux-x86_64-glibc23.tar.gz
   strategy: linear
   tasks:
 
-  - name: Update Environment
-    become: yes
-    apt:
-      update_cache: yes
-      upgrade: full
+    - name: Update Environment
+      become: yes
+      apt:
+        update_cache: yes
 
-  - name: Install pre-reqs
+    - name: Install pre-reqs
       become: yes
       apt:
         name:
@@ -22,10 +22,52 @@
         state: present
         force: yes
 
-  - name: Copy legacy MySQL
+    - name: Create users and groups
+      become: yes
       block:
-        - file: path={{ mysql_path }} state=directory
+        - group: 
+            name: mysql
+            state: present
+        - user:
+            name: mysql
+            groups: mysql
+            append: yes
+            state: present
+
+    - name: Install legacy MySQL
+      become: yes
+      block:
+        - file:
+            path: "{{ mysql_path }}"
+            state: directory
+        - unarchive:
+            src: "{{ mysql_arch }}"
+            dest: "{{ mysql_path }}"
+            group: mysql
+            extra_opts: [--strip-components=1]
+            creates: "{{ mysql_path }}/scripts"
+        - file:
+            path: "{{ mysql_path }}"
+            state: directory
+            owner: mysql
+            group: mysql
+            recurse: yes
+        - command:
+            chdir: "{{ mysql_path }}"
+            argv:
+              - "scripts/mysql_install_db" 
+              - "--user=mysql"
         - copy:
-            src: mysql-5.1.73-linux-linux-x86_64-glibc.tar.gz
-            dest: ~/
-        - shell: "tar -xvjf ~/mysql-5.1.73-linux-linux-x86_64-glibc.tar.gz"
+            src: users.sql
+            dest: /home/vagrant/users.sql
+        - copy:
+            src: mysql-legacy.conf
+            dest: /etc/init/mysql-legacy.conf
+        - file:
+            src: /etc/init/mysql-legacy.conf
+            dest: /etc/init.d/mysql-legacy
+            state: link
+        - service:
+            name: mysql-legacy
+            state: started
+        - shell: "{{ mysql_path }}/bin/mysql -h localhost -u root < /home/vagrant/users.sql"
