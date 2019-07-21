@@ -1,20 +1,36 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-Vagrant.configure("2") do |config|
-  config.vm.box = "mysql-legacy"
-  config.vm.network "forwarded_port", guest: 3306, host: 33306, host_ip: "127.0.0.1"
-  config.vm.network "private_network", ip: "192.168.33.10"
-  config.vm.network "public_network"
-  config.vm.synced_folder "../data", "/vagrant_data"
+VAGARANT_CONFIG_VERSION = '2'.freeze
+VM_NAME = 'mysql-legacy'.freeze
+VM_GROUP = '/Vagrants'.freeze
+BRIDGE_ADAPTER = 'en1:'.freeze
+
+
+Vagrant.configure(VAGARANT_CONFIG_VERSION) do |config|
+  # Vagrant settings
+  config.vm.box = 'ubuntu/trusty64'
+  config.vm.hostname = VM_NAME
+  config.vm.synced_folder '../data', '/vagrant_data'
+
+  # Networking
+  config.vm.network 'forwarded_port', guest: 3306, host: 33306, host_ip: '127.0.0.1'
+  config.vm.network 'private_network', ip: '192.168.33.10'
+  config.vm.network 'public_network', bridge: BRIDGE_ADAPTER
   
-  config.vm.provider "virtualbox" do |vb|
+  # VirtualBox configuration
+  config.vm.provider 'virtualbox' do |vb|
+    vb.name = VM_NAME
     vb.gui = false
-    vb.memory = "128"
+    vb.memory = '128'
+    vb.cpus = 1
+    vb.customize ['modifyvm', :id, '--groups', VM_GROUP]
+    vb.customize ['modifyvm', :id, '--name', VM_NAME]
   end
-  
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   apt-get update
-  #   apt-get install -y apache2
-  # SHELL
+
+  # Ansible provisioning
+  config.vm.provision 'ansible' do |ansible|
+    ansible.verbose = 'v'
+    ansible.playbook = 'playbook.yml'
+  end
 end

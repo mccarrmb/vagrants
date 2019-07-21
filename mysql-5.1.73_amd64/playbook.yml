@@ -1,0 +1,31 @@
+---
+- hosts: default
+  vars:
+    user: vagrant
+    mysql_path: /usr/local/opt/mysql
+  strategy: linear
+  tasks:
+
+  - name: Update Environment
+    become: yes
+    apt:
+      update_cache: yes
+      upgrade: full
+
+  - name: Install pre-reqs
+      become: yes
+      apt:
+        name:
+          - zip
+          - gzip
+          - build-essential
+        state: present
+        force: yes
+
+  - name: Copy legacy MySQL
+      block:
+        - file: path={{ mysql_path }} state=directory
+        - copy:
+            src: mysql-5.1.73-linux-linux-x86_64-glibc.tar.gz
+            dest: ~/
+        - shell: "tar -xvjf ~/mysql-5.1.73-linux-linux-x86_64-glibc.tar.gz"
