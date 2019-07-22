@@ -9,7 +9,7 @@ BRIDGE_ADAPTER = 'en1: Wi-Fi (AirPort)'.freeze
 
 Vagrant.configure(VAGARANT_CONFIG_VERSION) do |config|
   # Vagrant settings
-  config.vm.box = 'ubuntu/trusty64'
+  config.vm.box = 'ubuntu/precise64'
   config.vm.hostname = VM_NAME
   config.vm.synced_folder '../data', '/vagrant_data'
 
