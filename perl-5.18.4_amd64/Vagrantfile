@@ -29,7 +29,7 @@ Vagrant.configure(VAGARANT_CONFIG_VERSION) do |config|
 
   # Ansible provisioning
   config.vm.provision 'ansible' do |ansible|
-    ansible.verbose = 'v'
+    ansible.verbose = false
     ansible.playbook = 'playbook.yml'
   end
 end
