@@ -30,6 +30,8 @@
 
     - name: Install Perl 5.18.4
       command: /home/vagrant/perl5/perlbrew/bin/perlbrew install --notest --force 5.18.4
+      args:
+        creates: /home/vagrant/perl5/perlbrew/perls/perl-5.18.4/bin/perl
 
     - name: Setting Perl 5.18.4 as default Perl
-      command: /home/vagrant/perl5/perlbrew/bin/perlbrew switch perl-5.18.4
+      shell: /home/vagrant/perl5/perlbrew/bin/perlbrew switch perl-5.18.4 & exit
