@@ -30,7 +30,5 @@
 
     - name: Install Perl 5.18.4
       block:
-      - command: /home/vagrant/perl5/perlbrew/bin/perlbrew install --notest 5.18.4
-        args:
-          creates: /home/vagrant/perl5/perlbrew/perls/perl-5.18.4
+      - command: /home/vagrant/perl5/perlbrew/bin/perlbrew install --notest --force 5.18.4
       - command: /home/vagrant/perl5/perlbrew/bin/perlbrew switch perl-5.18.4
